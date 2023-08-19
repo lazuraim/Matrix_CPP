@@ -7,7 +7,7 @@
 class S21Matrix {
     private:
         int rows_, cols_; 
-        double **matrix_;
+        double *matrix_;
         void CreateMatrix();
         void DestroyMatrix(); 
 
