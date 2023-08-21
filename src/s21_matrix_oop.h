@@ -3,13 +3,9 @@
 
 #include <iostream>
 #include <cstring>
+#include <cmath>
 
 class S21Matrix {
-    private:
-        int rows_, cols_; 
-        double *matrix_;
-        void CreateMatrix();
-        void DestroyMatrix(); 
 
     public:
         S21Matrix();
@@ -18,14 +14,13 @@ class S21Matrix {
         S21Matrix(S21Matrix&& other) noexcept;
         ~S21Matrix();
 
-        void setRows(int rows);
+        void setRows(int new_rows);
         void setCols(int new_cols);
-        int getRows();
-        int getCols();
+        int getRows() const;
+        int getCols() const;
 
-
-        S21Matrix& operator=(const S21Matrix& other); // оператор копирования
-        S21Matrix& operator=(S21Matrix&& other) noexcept; // оператор перемещения 
+        S21Matrix& operator=(const S21Matrix& other);
+        S21Matrix& operator=(S21Matrix&& other) noexcept;
         double& operator()(int row, int col);                         
         double& operator()(int row, int col) const;
         S21Matrix& operator+=(const S21Matrix& other);                            
@@ -47,8 +42,13 @@ class S21Matrix {
         S21Matrix CalcComplements();
         double Determinant();
         S21Matrix InverseMatrix();
+        void FillMinorMatrix(int current_row, int current_col, S21Matrix &minor_matrix);
+
+    private:
+        int rows_, cols_; 
+        double *matrix_;
+        void CreateMatrix();
+        void DestroyMatrix(); 
 };
-
-
 
 #endif // __S21MATRIX_H__

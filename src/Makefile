@@ -1,12 +1,11 @@
 CC = g++
 CFLAGS = -ggdb -std=c++17 -Wall -Werror -Wextra -lstdc++
-SOURCES = $(wildcard *.cpp)
+SOURCES = $(wildcard s21*.cpp)
 OBJECTS = $(patsubst %.cpp, %.o, $(SOURCES))
-OS = $(shell uname -s)
 TARGET = s21_matrix_oop
 TEST_LIBS = -lgtest -lgmock -pthread
 
-all: clean $(TARGET).a
+all: $(TARGET).a
 
 main:
 	$(CC) $(FLAGS) $(SOURCES) -o $(TARGET)
@@ -18,20 +17,17 @@ $(TARGET).a: $(OBJECTS)
 	$(CC) -c $(FLAGS) $< -o $@
 
 clean:
-	@rm -rf $(TARGET) *.o *.a
+	rm -rf $(TARGET) *.o *.a
 
-test: clean
-ifeq ($(OS), Darwin)
-	$(CC) $(CFLAGS) -fsanitize=address -lcheck test.c s21*.c -o test.out && ./test.out
-else 
-	$(CC) $(OBJECTS) main.cpp -o s21_test $(TST_LIBS) $(CFLAGS)
-endif
+test:
+	$(CC) $(SOURCES) tests.cpp -o test $(TEST_LIBS) $(CFLAGS)
+	./test
 
 leaks: test
 ifeq ($(OS), Darwin)
-	CK_FORK=no leaks --atExit -- ./test.out
+	CK_FORK=no leaks --atExit -- ./test
 else
-	valgrind  --leak-check=full ./test.out
+	valgrind  --leak-check=full ./test
 endif
 
 style:
