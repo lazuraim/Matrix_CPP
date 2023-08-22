@@ -1,15 +1,13 @@
 #include "s21_matrix_oop.h"
 
-S21Matrix::S21Matrix() {
-  rows_ = 0;
-  cols_ = 0;
-  matrix_ = nullptr;
-}
+S21Matrix::S21Matrix() { Nulling(); }
 
+// TODO: validate rows and cols
 S21Matrix::S21Matrix(int rows, int cols) : rows_(rows), cols_(cols) {
   CreateMatrix();
 }
 
+// TODO: use parameterized ctor and then copy
 S21Matrix::S21Matrix(const S21Matrix &other)
     : rows_(other.rows_), cols_(other.cols_) {
   CreateMatrix();
@@ -29,9 +27,7 @@ S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
 
 S21Matrix::S21Matrix(S21Matrix &&other) noexcept
     : rows_(other.rows_), cols_(other.cols_), matrix_(other.matrix_) {
-  other.matrix_ = nullptr;
-  other.rows_ = 0;
-  other.cols_ = 0;
+  other.Nulling();
 }
 
 S21Matrix &S21Matrix::operator=(S21Matrix &&other) noexcept {
@@ -40,9 +36,7 @@ S21Matrix &S21Matrix::operator=(S21Matrix &&other) noexcept {
     rows_ = other.rows_;
     cols_ = other.cols_;
     matrix_ = other.matrix_;
-    other.rows_ = 0;
-    other.cols_ = 0;
-    other.matrix_ = nullptr;
+    other.Nulling();
   }
   return *this;
 }
@@ -92,8 +86,10 @@ void S21Matrix::setCols(int new_cols) {
   }
 }
 
+// TODO: substitude flags by returns
 bool S21Matrix::EqMatrix(const S21Matrix &other) const {
   bool result = 1;
+  const double kEps = 1e-7;
   if (rows_ != other.rows_ || cols_ != other.cols_) {
     result = 0;
   } else {
@@ -170,6 +166,7 @@ S21Matrix S21Matrix::Transpose() const {
   return tmp;
 }
 
+// TODO: substitute flags by returns
 double S21Matrix::Determinant() const {
   double result = 0;
   if (rows_ != cols_) {
@@ -223,6 +220,7 @@ void S21Matrix::FillMinorMatrix(int current_row, int current_col,
 }
 
 S21Matrix S21Matrix::InverseMatrix() const {
+  const double kEps = 1e-7;
   double determinant = Determinant();
   if (fabs(determinant) < kEps) {
     throw std::logic_error("Matrix deteminant is 0");
@@ -314,6 +312,10 @@ void S21Matrix::DestroyMatrix() {
   if (matrix_) {
     delete[] matrix_;
   }
+  Nulling();
+}
+
+void S21Matrix::Nulling() {
   matrix_ = nullptr;
   rows_ = 0;
   cols_ = 0;

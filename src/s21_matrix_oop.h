@@ -1,5 +1,5 @@
-#ifndef __S21_MATRIX_OOP_H__
-#define __S21_MATRIX_OOP_H__
+#ifndef CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_OOP_H_
+#define CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_OOP_H_
 
 #include <cmath>
 #include <cstring>
@@ -52,11 +52,11 @@ class S21Matrix {
  private:
   int rows_, cols_;
   double* matrix_;
-  const double kEps = 1e-7;
   void CreateMatrix();
   void DestroyMatrix();
+  void Nulling();
   void FillMinorMatrix(int current_row, int current_col,
                        S21Matrix& minor_matrix) const;
 };
 
-#endif  // __S21_MATRIX_OOP_H__
+#endif  // CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_OOP_H_

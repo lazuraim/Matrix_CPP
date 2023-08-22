@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++17 -Wall -Werror -Wextra
-SOURCES = $(wildcard s21*.cpp)
-OBJECTS = $(patsubst %.cpp, %.o, $(SOURCES))
+SOURCES = $(wildcard s21*.cc)
+OBJECTS = $(patsubst %.cc, %.o, $(SOURCES))
 TARGET = s21_matrix_oop
 TEST_LIBS = -lgtest -pthread
 
@@ -17,11 +17,11 @@ clean:
 	rm -rf $(TARGET) *.o *.a test *.gcno *.gcda *.dSYM report gcov_report
 
 test: clean
-	$(CC) $(SOURCES) tests.cpp -o test $(TEST_LIBS) $(CFLAGS)
+	$(CC) $(SOURCES) tests.cc -o test $(TEST_LIBS) $(CFLAGS)
 	./test
 
 gcov_report:
-	$(CC) $(SOURCES) --coverage tests.cpp -o gcov_report $(TEST_LIBS) $(CFLAGS)
+	$(CC) $(SOURCES) --coverage tests.cc -o gcov_report $(TEST_LIBS) $(CFLAGS)
 	./gcov_report
 	lcov -t report -o gcov_report.info -c -d . --no-external
 	genhtml -o report gcov_report.info
@@ -37,5 +37,5 @@ endif
 
 style:
 	cp ../materials/linters/.clang-format ./
-	clang-format -n *.cpp *.h
+	clang-format -n *.cc *.h
 	rm -rf .clang-format
