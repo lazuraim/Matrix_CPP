@@ -5,6 +5,8 @@
 #include <cstring>
 #include <iostream>
 
+namespace s21 {
+
 class S21Matrix {
  public:
   S21Matrix();
@@ -58,5 +60,7 @@ class S21Matrix {
   void FillMinorMatrix(int current_row, int current_col,
                        S21Matrix& minor_matrix) const;
 };
+
+}  // namespace s21
 
 #endif  // CPP1_S21_MATRIXPLUS_SRC_S21_MATRIX_OOP_H_

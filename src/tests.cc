@@ -2,6 +2,8 @@
 
 #include "s21_matrix_oop.h"
 
+namespace s21 {
+
 TEST(Constructors, Default) {
   S21Matrix m0;
   ASSERT_EQ(m0.getRows(), 0);
@@ -123,6 +125,12 @@ TEST(Constructors, copy_8) {
   ASSERT_DOUBLE_EQ(m1(0, 1), 2.7);
   ASSERT_DOUBLE_EQ(m1(1, 0), 3.8);
   ASSERT_DOUBLE_EQ(m1(1, 1), 4.0);
+}
+
+TEST(Constructors, copy_9) {
+  S21Matrix m1;
+  S21Matrix m2(1, 1);
+  EXPECT_ANY_THROW(m2 = m1;);
 }
 
 TEST(Constructors, move_1) {
@@ -723,6 +731,8 @@ TEST(Operators, Index_3) {
   m1(1, 0) = 1.0, m1(1, 1) = 2.0;
   EXPECT_ANY_THROW(m1(3, 3););
 }
+
+}  // namespace s21
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
