@@ -10,18 +10,17 @@ namespace s21 {
 class S21Matrix {
  public:
   S21Matrix();
-  S21Matrix(int rows, int cols);
+  explicit S21Matrix(int rows, int cols);
   S21Matrix(const S21Matrix& other);
   S21Matrix(S21Matrix&& other) noexcept;
   ~S21Matrix();
 
   // accessors
-  int getRows() const;
-  int getCols() const;
+  int get_rows() const;
+  int get_cols() const;
 
-  // mutators
-  void setRows(int new_rows);
-  void setCols(int new_cols);
+  // mutator
+  void resize(int new_rows, int new_cols);
 
   // operations
   bool EqMatrix(const S21Matrix& other) const;
@@ -38,7 +37,6 @@ class S21Matrix {
   S21Matrix operator+(const S21Matrix& other) const;
   S21Matrix operator-(const S21Matrix& other) const;
   S21Matrix operator*(const double num) const;
-  friend S21Matrix operator*(const double num, const S21Matrix& other);
   S21Matrix operator*(const S21Matrix& other) const;
   bool operator==(const S21Matrix& other) const;
   bool operator!=(const S21Matrix& other) const;
@@ -60,6 +58,8 @@ class S21Matrix {
   void FillMinorMatrix(int current_row, int current_col,
                        S21Matrix& minor_matrix) const;
 };
+
+S21Matrix operator*(const double num, const S21Matrix& other);
 
 }  // namespace s21
 

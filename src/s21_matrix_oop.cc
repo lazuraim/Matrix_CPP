@@ -2,22 +2,33 @@
 
 namespace s21 {
 
+/*
+ * Конструктор по умолчанию создает нулевую матрицу. Используется, если желаемые
+ * параметры заранее неизвестны. Для выделения памяти нужного размера в
+ * дальнейшем используется мутатор Resize(), позволяющий изменить значения и
+ * строк, и столбцов. Существование матриц 0xn и mx0 не предусмотрено.
+ */
 S21Matrix::S21Matrix() { Nulling(); }
 
-S21Matrix::S21Matrix(int rows, int cols) {
+/*
+ * Параметризованный конструктор позволяет создать матрицу желаемого размера.
+ * Создание нулевой матрицы с помощью параметризованного конструктора не
+ * предусмотрено, для этого существует конструктор по умолчанию.
+ */
+S21Matrix::S21Matrix(int rows, int cols) : rows_(rows), cols_(cols) {
   if (rows < 1 || cols < 1) {
     throw std::out_of_range("Incorrect input, rows should not be less than 1");
   }
-  rows_ = rows;
-  cols_ = cols;
   CreateMatrix();
 }
 
+/* Конструктор копирования */
 S21Matrix::S21Matrix(const S21Matrix &other)
     : S21Matrix(other.rows_, other.cols_) {
   std::memcpy(matrix_, other.matrix_, rows_ * cols_ * sizeof(double));
 }
 
+/* Копирующий оператор присваивания */
 S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
   if (this != &other) {
     DestroyMatrix();
@@ -29,11 +40,13 @@ S21Matrix &S21Matrix::operator=(const S21Matrix &other) {
   return *this;
 }
 
+/* Конструктор перемещения */
 S21Matrix::S21Matrix(S21Matrix &&other) noexcept
     : rows_(other.rows_), cols_(other.cols_), matrix_(other.matrix_) {
   other.Nulling();
 }
 
+/* Перемещающий оператор присваивания */
 S21Matrix &S21Matrix::operator=(S21Matrix &&other) noexcept {
   if (this != &other) {
     DestroyMatrix();
@@ -47,59 +60,39 @@ S21Matrix &S21Matrix::operator=(S21Matrix &&other) noexcept {
 
 S21Matrix::~S21Matrix() { DestroyMatrix(); }
 
-int S21Matrix::getRows() const { return rows_; }
-int S21Matrix::getCols() const { return cols_; }
+int S21Matrix::get_rows() const { return rows_; }
+int S21Matrix::get_cols() const { return cols_; }
 
-void S21Matrix::setRows(int new_rows) {
-  if (new_rows < 1) {
-    throw std::out_of_range("Incorrect input, rows should not be less than 1");
+/*
+ * Мутатор позволяет поменять значения строк и столбцов матрицы и перевыделить
+ * память.  Допустимыми являются параметры не меньше 1 в целях предотвращения
+ * создания матриц размера mx0 и 0xn.
+ */
+void S21Matrix::resize(int new_rows, int new_cols) {
+  if (new_rows < 1 || new_cols < 1) {
+    throw std::out_of_range(
+        "Incorrect input, rows and cols should not be less than 1");
   }
-  if (new_rows != rows_) {
-    if (rows_ == 0 || cols_ == 0) {
-      rows_ = new_rows;
-    } else {
-      S21Matrix tmp(new_rows, cols_);
-      int rows_to_copy = std::min(new_rows, rows_);
-      for (int i = 0; i < rows_to_copy; ++i) {
-        for (int j = 0; j < cols_; ++j) {
-          tmp(i, j) = (*this)(i, j);
-        }
-      }
-      *this = std::move(tmp);
+  S21Matrix tmp(new_rows, new_cols);
+  int rows_to_copy = std::min(new_rows, rows_);
+  int cols_to_copy = std::min(new_cols, cols_);
+  for (int i = 0; i < rows_to_copy; ++i) {
+    for (int j = 0; j < cols_to_copy; ++j) {
+      tmp(i, j) = (*this)(i, j);
     }
   }
-}
-
-void S21Matrix::setCols(int new_cols) {
-  if (new_cols < 1) {
-    throw std::out_of_range("Incorrect input, cols should not be less than 1");
-  }
-  if (new_cols != cols_) {
-    if (rows_ == 0 || cols_ == 0) {
-      cols_ = new_cols;
-    } else {
-      S21Matrix tmp(rows_, new_cols);
-      int cols_to_copy = std::min(cols_, new_cols);
-      for (int i = 0; i < rows_; ++i) {
-        for (int j = 0; j < cols_to_copy; ++j) {
-          tmp(i, j) = (*this)(i, j);
-        }
-      }
-      *this = std::move(tmp);
-    }
-  }
+  *this = std::move(tmp);
 }
 
 bool S21Matrix::EqMatrix(const S21Matrix &other) const {
   const double kEpsilon = 1e-7;
   if (rows_ != other.rows_ || cols_ != other.cols_) {
     return 0;
-  } else {
-    for (auto i = 0; i < rows_; ++i) {
-      for (auto j = 0; j < cols_; ++j) {
-        if (((*this)(i, j) - other(i, j)) > kEpsilon) {
-          return 0;
-        }
+  }
+  for (auto i = 0; i < rows_; ++i) {
+    for (auto j = 0; j < cols_; ++j) {
+      if (((*this)(i, j) - other(i, j)) > kEpsilon) {
+        return 0;
       }
     }
   }
@@ -169,15 +162,20 @@ S21Matrix S21Matrix::Transpose() const {
 }
 
 double S21Matrix::Determinant() const {
+  if (rows_ == 0 || cols_ == 0) {
+    throw std::logic_error("Incorrect input, matrix should not be null");
+  }
   if (rows_ != cols_) {
     throw std::logic_error("Incorrect input, matrix should be square");
   }
   double result = 0.0;
   if (rows_ == 1) {
     return (*this)(0, 0);
-  } else if (rows_ == 2) {
+  }
+  if (rows_ == 2) {
     return (*this)(0, 0) * (*this)(1, 1) - (*this)(0, 1) * (*this)(1, 0);
-  } else if (rows_ > 2) {
+  }
+  if (rows_ > 2) {
     S21Matrix algebraic_compl = (*this).CalcComplements();
     for (int i = 0; i < rows_; ++i) {
       result += (*this)(i, 0) * algebraic_compl(i, 0);
@@ -190,14 +188,18 @@ S21Matrix S21Matrix::CalcComplements() const {
   if (rows_ != cols_) {
     throw std::logic_error("Incorrect input, matrix should be square");
   }
-  double minor = 0.0;
-  S21Matrix minor_matrix(rows_ - 1, cols_ - 1);
   S21Matrix algebraic_compl(rows_, cols_);
-  for (int i = 0; i < rows_; ++i) {
-    for (int j = 0; j < cols_; ++j) {
-      FillMinorMatrix(i, j, minor_matrix);
-      minor = minor_matrix.Determinant();
-      algebraic_compl(i, j) = minor * pow(-1, (i + j));
+  if (rows_ == 1) {
+    algebraic_compl(0, 0) = (*this)(0, 0);
+  } else {
+    double minor = 0.0;
+    S21Matrix minor_matrix(rows_ - 1, cols_ - 1);
+    for (int i = 0; i < rows_; ++i) {
+      for (int j = 0; j < cols_; ++j) {
+        FillMinorMatrix(i, j, minor_matrix);
+        minor = minor_matrix.Determinant();
+        algebraic_compl(i, j) = minor * pow(-1, (i + j));
+      }
     }
   }
   return algebraic_compl;
